@@ -209,10 +209,12 @@ clangStdenv.mkDerivation (finalAttrs: {
       -e 's|"libnoise/noise.h"|"noise/noise.h"|' \
       src/libslic3r/Feature/FuzzySkin/FuzzySkin.cpp
 
-    # wx 3.3.4 renamed/removed wxGridCellChoiceEditor::OnComboCloseUp; both editors in
-    # this file still call the old API (upstream bug, not yet fixed for 3.3.4).
-    substituteInPlace src/slic3r/GUI/GUI_ObjectTable.cpp \
-      --replace-fail "wxGridCellChoiceEditor::OnComboCloseUp(evt)" "wxGridCellChoiceEditor::DismissEditor()"
+    ${lib.optionalString (lib.versionAtLeast wxGTK'.version "3.3.4") ''
+      # wx 3.3.4 renamed/removed wxGridCellChoiceEditor::OnComboCloseUp; both editors in
+      # this file still call the old API (upstream bug, not yet fixed for 3.3.4).
+      substituteInPlace src/slic3r/GUI/GUI_ObjectTable.cpp \
+        --replace-fail "wxGridCellChoiceEditor::OnComboCloseUp(evt)" "wxGridCellChoiceEditor::DismissEditor()"
+    ''}
 
     # Link opencv_core/imgproc/imgcodecs instead of the monolithic opencv_world,
     # which nixpkgs' opencv does not build.
